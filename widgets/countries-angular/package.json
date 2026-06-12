@@ -20,5 +20,5 @@
     "@angular/compiler-cli": "^21.2.7",
     "typescript": "~5.9.0"
   },
-  "packageManager": "npm@10.9.2"
+  "packageManager": "pnpm@11.6.0"
 }
