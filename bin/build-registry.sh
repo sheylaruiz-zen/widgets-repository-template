@@ -99,7 +99,7 @@ if [ "$VALIDATE_ONLY" = true ]; then
   fi
   widget_count=$(jq '.widgets | length' "$OUTPUT_FILE")
   bad=0
-  for i in $(seq 0 $((widget_count - 1))); do
+  for ((i = 0; i < widget_count; i++)); do
     w=$(jq -c ".widgets[$i]" "$OUTPUT_FILE")
     has_source=$(echo "$w" | jq 'has("source")')
     has_content=$(echo "$w" | jq 'has("content")')
@@ -142,7 +142,7 @@ if [ "$VALIDATE_ONLY" = true ]; then
     fi
     connector_count=$(jq '.connectors | length' "$CONNECTORS_OUTPUT_FILE")
     connector_bad=0
-    for i in $(seq 0 $((connector_count - 1))); do
+    for ((i = 0; i < connector_count; i++)); do
       c=$(jq -c ".connectors[$i]" "$CONNECTORS_OUTPUT_FILE")
       c_name=$(echo "$c" | jq -r '.name // empty')
       c_url=$(echo "$c" | jq -r '.url // empty')
@@ -163,11 +163,39 @@ if [ "$VALIDATE_ONLY" = true ]; then
       done
       connector_bad=1
     fi
+
+    # Validate composite_connectors (optional section)
+    composite_count=0
+    if jq -e '.composite_connectors | type == "array"' "$CONNECTORS_OUTPUT_FILE" > /dev/null 2>&1; then
+      composite_count=$(jq '.composite_connectors | length' "$CONNECTORS_OUTPUT_FILE")
+      for ((i = 0; i < composite_count; i++)); do
+        cc=$(jq -c ".composite_connectors[$i]" "$CONNECTORS_OUTPUT_FILE")
+        cc_name=$(echo "$cc" | jq -r '.name // empty')
+        if [ -z "$cc_name" ]; then
+          error "Composite connector at index $i missing required field: name"
+          connector_bad=1
+        fi
+        cc_steps_type=$(echo "$cc" | jq -r '.steps | type')
+        cc_steps_len=$(echo "$cc" | jq '.steps | length')
+        if [ "$cc_steps_type" != "array" ] || [ "$cc_steps_len" -eq 0 ]; then
+          error "Composite connector at index $i must have a non-empty steps array"
+          connector_bad=1
+        fi
+      done
+      dup_composite_permalinks=$(jq -r '.composite_connectors[].permalink // empty' "$CONNECTORS_OUTPUT_FILE" | sort | uniq -d)
+      if [ -n "$dup_composite_permalinks" ]; then
+        for dup in $dup_composite_permalinks; do
+          error "Duplicate composite connector permalink: $dup"
+        done
+        connector_bad=1
+      fi
+    fi
+
     if [ $connector_bad -eq 1 ]; then
       exit 1
     fi
     success "Valid JSON in $CONNECTORS_OUTPUT_FILE"
-    success "Found $connector_count connectors in registry"
+    success "Found $connector_count connectors and $composite_count composite connectors in registry"
   fi
 
   exit 0
@@ -553,6 +581,9 @@ CONNECTORS_JSON="[]"
 connector_count=0
 connector_error_count=0
 ALL_PERMALINKS=""
+COMPOSITE_CONNECTORS_JSON="[]"
+composite_connector_count=0
+ALL_COMPOSITE_PERMALINKS=""
 
 for widget_dir in "$WIDGETS_DIR"/*; do
   [ -d "$widget_dir" ] || continue
@@ -570,15 +601,40 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     continue
   fi
 
-  if ! jq -e '.connectors | type == "array"' "$connectors_config" > /dev/null 2>&1; then
-    error "  $connectors_config missing top-level connectors array"
+  has_connectors=false
+  if [ "$(jq 'has("connectors")' "$connectors_config")" = "true" ]; then
+    if jq -e '.connectors | type == "array"' "$connectors_config" > /dev/null 2>&1; then
+      has_connectors=true
+    else
+      error "  $connectors_config: 'connectors' must be an array"
+      ((connector_error_count++))
+      continue
+    fi
+  fi
+
+  has_composite=false
+  if [ "$(jq 'has("composite_connectors")' "$connectors_config")" = "true" ]; then
+    if jq -e '.composite_connectors | type == "array"' "$connectors_config" > /dev/null 2>&1; then
+      has_composite=true
+    else
+      error "  $connectors_config: 'composite_connectors' must be an array"
+      ((connector_error_count++))
+      continue
+    fi
+  fi
+
+  if [ "$has_connectors" != "true" ] && [ "$has_composite" != "true" ]; then
+    error "  $connectors_config must contain a 'connectors' and/or 'composite_connectors' array"
     ((connector_error_count++))
     continue
   fi
 
-  num_connectors=$(jq '.connectors | length' "$connectors_config")
+  num_connectors=0
+  if [ "$has_connectors" = "true" ]; then
+    num_connectors=$(jq '.connectors | length' "$connectors_config")
+  fi
 
-  for i in $(seq 0 $((num_connectors - 1))); do
+  for ((i = 0; i < num_connectors; i++)); do
     c=$(jq -c ".connectors[$i]" "$connectors_config")
     c_name=$(echo "$c" | jq -r '.name // empty')
     c_url=$(echo "$c" | jq -r '.url // empty')
@@ -637,6 +693,116 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     success "  Processed connector: $c_name ($c_permalink)"
     ((connector_count++))
   done
+
+  # ---- Composite connectors (steps-based; no top-level url) ----
+  num_composites=0
+  if [ "$has_composite" = "true" ]; then
+    num_composites=$(jq '.composite_connectors | length' "$connectors_config")
+  fi
+
+  for ((j = 0; j < num_composites; j++)); do
+    cc=$(jq -c ".composite_connectors[$j]" "$connectors_config")
+    cc_name=$(echo "$cc" | jq -r '.name // empty')
+    cc_permalink=$(echo "$cc" | jq -r '.permalink // empty')
+
+    if [ -z "$cc_name" ]; then
+      error "  Composite connector at index $j missing required field: name"
+      ((connector_error_count++))
+      continue
+    fi
+    cc_name_length=${#cc_name}
+    if [ "$cc_name_length" -gt 255 ]; then
+      error "  Composite connector '$cc_name' name exceeds 255 characters"
+      ((connector_error_count++))
+      continue
+    fi
+
+    cc_steps_type=$(echo "$cc" | jq -r '.steps | type')
+    if [ "$cc_steps_type" != "array" ]; then
+      error "  Composite connector '$cc_name' must have a steps array"
+      ((connector_error_count++))
+      continue
+    fi
+    num_steps=$(echo "$cc" | jq '.steps | length')
+    if [ "$num_steps" -eq 0 ]; then
+      error "  Composite connector '$cc_name' must have at least one step"
+      ((connector_error_count++))
+      continue
+    fi
+
+    step_bad=0
+    seen_step_names=""
+    for ((s = 0; s < num_steps; s++)); do
+      step=$(echo "$cc" | jq -c ".steps[$s]")
+      s_name=$(echo "$step" | jq -r '.name // empty')
+      s_url=$(echo "$step" | jq -r '.url // empty')
+      s_method=$(echo "$step" | jq -r '.method // empty')
+      s_path_params_len=$(echo "$step" | jq '(.path_parameters // []) | length')
+
+      if [ -z "$s_name" ]; then
+        error "  Composite connector '$cc_name' step $s missing required field: name"
+        step_bad=1
+      elif ! echo "$s_name" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+        error "  Composite connector '$cc_name' step name '$s_name' must be a slug (lowercase letters, numbers, single dashes)"
+        step_bad=1
+      else
+        case " $seen_step_names " in
+          *" $s_name "*)
+            error "  Composite connector '$cc_name' has duplicate step name: $s_name"
+            step_bad=1
+            ;;
+          *)
+            seen_step_names="$seen_step_names $s_name"
+            ;;
+        esac
+      fi
+
+      if [ -z "$s_url" ]; then
+        error "  Composite connector '$cc_name' step '$s_name' missing required field: url"
+        step_bad=1
+      fi
+
+      if [ -n "$s_method" ]; then
+        case "$s_method" in
+          GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD) ;;
+          *)
+            error "  Composite connector '$cc_name' step '$s_name' has invalid method: $s_method (must be GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD)"
+            step_bad=1
+            ;;
+        esac
+      fi
+
+      if [ "$s_path_params_len" -gt 0 ]; then
+        error "  Composite connector '$cc_name' step '$s_name' has path_parameters, which are not supported on composite steps"
+        step_bad=1
+      fi
+    done
+
+    if [ "$step_bad" -eq 1 ]; then
+      ((connector_error_count++))
+      continue
+    fi
+
+    # Generate permalink from name if not provided
+    if [ -z "$cc_permalink" ]; then
+      cc_permalink=$(generate_permalink "$cc_name")
+      warning "  Composite connector '$cc_name' missing permalink, auto-generated: $cc_permalink"
+      cc=$(echo "$cc" | jq --arg permalink "$cc_permalink" '. + {permalink: $permalink}')
+    fi
+
+    # Validate permalink format (must match ^[a-z0-9]+(-[a-z0-9]+)*$)
+    if ! echo "$cc_permalink" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+      error "  Composite connector '$cc_name' has invalid permalink format: $cc_permalink (must match ^[a-z0-9]+(-[a-z0-9]+)*\$)"
+      ((connector_error_count++))
+      continue
+    fi
+
+    ALL_COMPOSITE_PERMALINKS="$ALL_COMPOSITE_PERMALINKS $cc_permalink"
+
+    COMPOSITE_CONNECTORS_JSON=$(echo "$COMPOSITE_CONNECTORS_JSON" | jq --argjson connector "$cc" '. + [$connector]')
+    success "  Processed composite connector: $cc_name ($cc_permalink)"
+    ((composite_connector_count++))
+  done
 done
 
 # Check permalink uniqueness across ALL connectors
@@ -645,6 +811,17 @@ if [ -n "$ALL_PERMALINKS" ]; then
   if [ -n "$dup_permalinks" ]; then
     for dup in $dup_permalinks; do
       error "Duplicate connector permalink: $dup"
+    done
+    ((connector_error_count++))
+  fi
+fi
+
+# Check permalink uniqueness across ALL composite connectors (separate namespace)
+if [ -n "$ALL_COMPOSITE_PERMALINKS" ]; then
+  dup_composite_permalinks=$(echo "$ALL_COMPOSITE_PERMALINKS" | tr ' ' '\n' | sort | uniq -d)
+  if [ -n "$dup_composite_permalinks" ]; then
+    for dup in $dup_composite_permalinks; do
+      error "Duplicate composite connector permalink: $dup"
     done
     ((connector_error_count++))
   fi
@@ -660,10 +837,15 @@ fi
 
 if [ $connector_count -gt 0 ]; then
   success "Successfully processed $connector_count connector(s)"
-  CONNECTORS_REGISTRY_JSON=$(jq -n --argjson connectors "$CONNECTORS_JSON" '{connectors: $connectors}')
-else
+elif [ $composite_connector_count -eq 0 ]; then
   warning "No connectors found to process"
-  CONNECTORS_REGISTRY_JSON='{"connectors":[]}'
+fi
+
+CONNECTORS_REGISTRY_JSON=$(jq -n --argjson connectors "$CONNECTORS_JSON" '{connectors: $connectors}')
+
+if [ $composite_connector_count -gt 0 ]; then
+  success "Successfully processed $composite_connector_count composite connector(s)"
+  CONNECTORS_REGISTRY_JSON=$(echo "$CONNECTORS_REGISTRY_JSON" | jq --argjson composite "$COMPOSITE_CONNECTORS_JSON" '. + {composite_connectors: $composite}')
 fi
 
 # -----------------------------------------------------------------------------

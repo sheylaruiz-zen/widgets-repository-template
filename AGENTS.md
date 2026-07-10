@@ -41,7 +41,7 @@ extensions_registry.json      # Generated — do not edit
 connectors_registry.json      # Generated — do not edit
 widgets/<name>/
   widget.json                 # Widget config (schema: online docs)
-  connectors.json             # Optional — merged into connectors_registry.json
+  connectors.json             # Optional — `connectors` and/or `composite_connectors`, merged into connectors_registry.json
   dist/content.html           # Entry file (convention: source.path = "dist")
 scripts/<name>/
   script.json                 # Metadata
@@ -86,6 +86,8 @@ Fetch the online docs before copying one of these as a starting point — they a
 - Connector `method` (if present) is one of `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, `OPTIONS`, `HEAD`.
 - Connector `permalink` (if present) matches `^[a-z0-9]+(-[a-z0-9]+)*$`; otherwise auto-generated from `name`.
 - Connector permalinks are unique across the whole repo.
+- A `connectors.json` has a `connectors` array, a `composite_connectors` array, or both.
+- Each `composite_connectors` entry has a non-empty `steps` array; every step has a slug `name` and a non-empty `url`, step names are unique within the composite, and steps carry no `path_parameters`. Composite permalinks are unique within their own namespace.
 
 Everything else is the platform's responsibility — consult the online docs.
 
