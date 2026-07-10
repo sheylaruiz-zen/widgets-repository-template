@@ -21,5 +21,37 @@
       "permalink": "rest-countries",
       "response_content_type": "application/json"
     }
+  ],
+  "composite_connectors": [
+    {
+      "name": "Country Lookup",
+      "permalink": "country-lookup",
+      "steps": [
+        {
+          "name": "all-countries",
+          "url": "https://restcountries.com/v3.1/all",
+          "method": "GET",
+          "query_parameters": [
+            {
+              "key": "fields",
+              "value": "name,region",
+              "overridable": false
+            }
+          ]
+        },
+        {
+          "name": "europe-countries",
+          "url": "https://restcountries.com/v3.1/region/europe",
+          "method": "GET",
+          "query_parameters": [
+            {
+              "key": "fields",
+              "value": "name,capital,population",
+              "overridable": false
+            }
+          ]
+        }
+      ]
+    }
   ]
 }
