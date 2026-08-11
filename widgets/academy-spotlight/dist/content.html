@@ -1,20 +1,22 @@
 <style>
   .academy-spotlight {
-    --as-canvas: #ffffff;
-    --as-surface: #f9f8f7;
+    --as-canvas: #f7f6f5;
     --as-border: #e6e5e3;
+    --as-accent: #0f3733;
+    --as-badge-bg: #0f3733;
+    --as-badge-text: #ffffff;
     --as-text: #2c2c2b;
-    --as-muted: #7d7a75;
-    --as-accent: #2783de;
-    --as-accent-soft: #e5f2fc;
-    --as-accent-hover: #1f6cb8;
+    --as-muted: #5c5a56;
+    --as-cta: #0f3733;
+    --as-cta-hover: #1c524c;
 
     box-sizing: border-box;
     width: 100%;
     max-width: 340px;
     background: var(--as-canvas);
     border: 1px solid var(--as-border);
-    border-radius: 12px;
+    border-left: 4px solid var(--as-accent);
+    border-radius: 10px;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--as-text);
@@ -30,8 +32,7 @@
     display: block;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: var(--as-surface);
-    border-bottom: 1px solid var(--as-border);
+    background: var(--as-border);
     overflow: hidden;
   }
 
@@ -47,20 +48,20 @@
   }
 
   .academy-spotlight__body {
-    padding: 16px;
+    padding: 20px;
   }
 
   .academy-spotlight__label {
     display: inline-block;
-    margin: 0 0 12px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: var(--as-accent-soft);
-    color: #14568f;
-    font-size: 12px;
-    font-weight: 600;
+    margin: 0 0 14px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--as-badge-bg);
+    color: var(--as-badge-text);
+    font-size: 11px;
+    font-weight: 700;
     line-height: 1.2;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
@@ -70,15 +71,15 @@
 
   .academy-spotlight__title {
     margin: 0 0 8px;
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.35;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.3;
   }
 
   .academy-spotlight__blurb {
     margin: 0 0 16px;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
     color: var(--as-muted);
   }
 
@@ -87,33 +88,28 @@
   }
 
   .academy-spotlight__cta {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    background: var(--as-accent);
-    color: #ffffff;
+    gap: 6px;
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--as-cta);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.3;
-    text-align: center;
     text-decoration: none;
-    transition: background-color 120ms ease-in-out;
+    transition: color 120ms ease-in-out;
   }
 
   .academy-spotlight__cta:hover,
   .academy-spotlight__cta:focus-visible {
-    background: var(--as-accent-hover);
-    color: #ffffff;
+    color: var(--as-cta-hover);
   }
 
   .academy-spotlight__cta:focus-visible {
-    outline: 2px solid var(--as-accent);
-    outline-offset: 2px;
+    outline: 2px solid var(--as-cta);
+    outline-offset: 3px;
   }
 
   .academy-spotlight__cta[hidden] {
@@ -122,10 +118,17 @@
 
   .academy-spotlight__arrow {
     flex: 0 0 auto;
+    transition: transform 120ms ease-in-out;
+  }
+
+  .academy-spotlight__cta:hover .academy-spotlight__arrow,
+  .academy-spotlight__cta:focus-visible .academy-spotlight__arrow {
+    transform: translateX(2px);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .academy-spotlight__cta {
+    .academy-spotlight__cta,
+    .academy-spotlight__arrow {
       transition: none;
     }
   }
@@ -133,26 +136,14 @@
   @media (prefers-color-scheme: dark) {
     .academy-spotlight {
       --as-canvas: #202020;
-      --as-surface: #383836;
-      --as-border: rgba(255, 255, 255, 0.2);
+      --as-border: rgba(255, 255, 255, 0.16);
+      --as-accent: #4fd1c5;
+      --as-badge-bg: #4fd1c5;
+      --as-badge-text: #0f3733;
       --as-text: #ffffff;
       --as-muted: rgba(255, 255, 255, 0.65);
-      --as-accent: #5e9fe8;
-      --as-accent-soft: rgba(94, 159, 232, 0.12);
-      --as-accent-hover: #7cb2ee;
-    }
-
-    .academy-spotlight__label {
-      color: #a9cdf5;
-    }
-
-    .academy-spotlight__cta {
-      color: #14202c;
-    }
-
-    .academy-spotlight__cta:hover,
-    .academy-spotlight__cta:focus-visible {
-      color: #14202c;
+      --as-cta: #4fd1c5;
+      --as-cta-hover: #7fe0d6;
     }
   }
 </style>
