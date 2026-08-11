@@ -30,7 +30,7 @@
           },
           {
             "name": "blurb",
-            "type": "textarea",
+            "type": "text",
             "label": "Course blurb",
             "defaultValue": "Learn how to configure, test, and launch AI agents that resolve common customer requests. Takes about 30 minutes."
           },
