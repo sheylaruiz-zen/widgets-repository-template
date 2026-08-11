@@ -245,13 +245,13 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   if [ ! -f "$widget_config" ]; then
     error "  Missing widget.json in $widget_dir"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
   if ! jq empty "$widget_config" 2>/dev/null; then
     error "  Invalid JSON in $widget_config"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
@@ -260,7 +260,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   if [ -z "$title" ]; then
     error "  Missing required field: title"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
   if [ -z "$category" ]; then
@@ -269,7 +269,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
       category="$DEFAULT_WIDGET_CATEGORY"
     else
       error "  Missing required field: category (widget-service rejects widgets without a category; set DEFAULT_WIDGET_CATEGORY or add 'category' to widget.json)"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
   fi
@@ -284,12 +284,12 @@ for widget_dir in "$WIDGETS_DIR"/*; do
         error "    Hint: use [ { \"name\": \"title\", \"type\": \"text\", \"label\": \"Title\" }, ... ]"
         error "    instead of JSON-Schema style { \"title\": { ... } }."
       fi
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
   elif jq -e '.configuration' "$widget_config" >/dev/null 2>&1; then
     error "  configuration block is present but missing required 'properties' array"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
@@ -298,13 +298,13 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   if [ "$has_source" = "true" ] && [ "$has_content" = "true" ]; then
     error "  widget.json must not have both source and content"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
   if [ "$has_source" != "true" ] && [ "$has_content" != "true" ]; then
     error "  widget.json must include either source or content"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
@@ -314,7 +314,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
   [ "$image_name" = "null" ] && image_name=""
   if [ -n "$image_src" ] && [ -n "$image_name" ]; then
     error "  Widget has both imageSrc and imageName; only one is allowed"
-    ((error_count++))
+    error_count=$((error_count + 1))
     continue
   fi
 
@@ -325,20 +325,20 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     else
       if [[ "$image_src" == *".."* ]] || [[ "$image_src" == /* ]]; then
         error "  Invalid imageSrc (no .. or leading /): $image_src"
-        ((error_count++))
+        error_count=$((error_count + 1))
         continue
       fi
       image_src_normalized="${image_src#./}"
       image_src_resolved="${WIDGETS_DIR}/${widget_name}/${image_src_normalized}"
       if [ ! -f "$image_src_resolved" ]; then
         error "  Thumbnail file not found: $image_src_resolved"
-        ((error_count++))
+        error_count=$((error_count + 1))
         continue
       fi
       size_bytes=$(stat -f%z "$image_src_resolved" 2>/dev/null || stat -c%s "$image_src_resolved" 2>/dev/null)
       if [ -n "$size_bytes" ] && [ "$size_bytes" -gt 524288 ]; then
         error "  Thumbnail exceeds 512 KB: $image_src_resolved"
-        ((error_count++))
+        error_count=$((error_count + 1))
         continue
       fi
     fi
@@ -349,14 +349,14 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     src_entry=$(jq -r '.source.entry // empty' "$widget_config")
     if [ -z "$src_entry" ] || [ "$src_entry" = "null" ]; then
       error "  source.entry is required when source block is present"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
     repo_path=$(normalize_widget_path "$src_path" "$widget_name") || true
     if [ -z "$repo_path" ]; then
       error "  Invalid source.path (no .. or leading /): $src_path"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -370,12 +370,12 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
     if [ ! -d "$check_dir" ]; then
       error "  Source directory does not exist: $check_dir"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
     if [ ! -f "$entry_file" ]; then
       error "  Entry file does not exist: $entry_file"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -402,7 +402,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   WIDGETS_JSON=$(echo "$WIDGETS_JSON" | jq --argjson widget "$widget" '. + [$widget]')
   success "  Processed: $title"
-  ((widget_count++))
+  widget_count=$((widget_count + 1))
 done
 
 echo ""
@@ -435,20 +435,20 @@ if [ -d "$STYLESHEETS_DIR" ]; then
 
     if [ ! -f "$stylesheet_config" ]; then
       error "  Missing stylesheet.json in $stylesheet_dir"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
     if ! jq empty "$stylesheet_config" 2>/dev/null; then
       error "  Invalid JSON in $stylesheet_config"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
     ss_name=$(jq -r '.name // empty' "$stylesheet_config")
     if [ -z "$ss_name" ]; then
       error "  Missing required field: name"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -461,7 +461,7 @@ if [ -d "$STYLESHEETS_DIR" ]; then
 
     if [ ! -f "$stylesheet_dir/$ss_file_name" ]; then
       error "  Missing $ss_file_name in $stylesheet_dir"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -475,7 +475,7 @@ if [ -d "$STYLESHEETS_DIR" ]; then
 
     STYLESHEETS_JSON=$(echo "$STYLESHEETS_JSON" | jq --argjson ss "$stylesheet" '. + [$ss]')
     success "  Processed: $ss_name"
-    ((stylesheet_count++))
+    stylesheet_count=$((stylesheet_count + 1))
   done
 
   if [ $error_count -gt 0 ]; then
@@ -504,20 +504,20 @@ if [ -d "$SCRIPTS_DIR" ]; then
 
     if [ ! -f "$script_config" ]; then
       error "  Missing script.json in $script_dir"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
     if ! jq empty "$script_config" 2>/dev/null; then
       error "  Invalid JSON in $script_config"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
     sc_name=$(jq -r '.name // empty' "$script_config")
     if [ -z "$sc_name" ]; then
       error "  Missing required field: name"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -530,7 +530,7 @@ if [ -d "$SCRIPTS_DIR" ]; then
 
     if [ ! -f "$script_dir/$sc_file_name" ]; then
       error "  Missing $sc_file_name in $script_dir"
-      ((error_count++))
+      error_count=$((error_count + 1))
       continue
     fi
 
@@ -545,7 +545,7 @@ if [ -d "$SCRIPTS_DIR" ]; then
 
     SCRIPTS_JSON=$(echo "$SCRIPTS_JSON" | jq --argjson sc "$script" '. + [$sc]')
     success "  Processed: $sc_name"
-    ((script_count++))
+    script_count=$((script_count + 1))
   done
 
   if [ $error_count -gt 0 ]; then
@@ -597,7 +597,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   if ! jq empty "$connectors_config" 2>/dev/null; then
     error "  Invalid JSON in $connectors_config"
-    ((connector_error_count++))
+    connector_error_count=$((connector_error_count + 1))
     continue
   fi
 
@@ -607,7 +607,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
       has_connectors=true
     else
       error "  $connectors_config: 'connectors' must be an array"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
   fi
@@ -618,14 +618,14 @@ for widget_dir in "$WIDGETS_DIR"/*; do
       has_composite=true
     else
       error "  $connectors_config: 'composite_connectors' must be an array"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
   fi
 
   if [ "$has_connectors" != "true" ] && [ "$has_composite" != "true" ]; then
     error "  $connectors_config must contain a 'connectors' and/or 'composite_connectors' array"
-    ((connector_error_count++))
+    connector_error_count=$((connector_error_count + 1))
     continue
   fi
 
@@ -644,20 +644,20 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     # Validate name (required, non-empty string, max 255 chars)
     if [ -z "$c_name" ]; then
       error "  Connector at index $i missing required field: name"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
     name_length=${#c_name}
     if [ "$name_length" -gt 255 ]; then
       error "  Connector '$c_name' name exceeds 255 characters"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
     # Validate url (required, non-empty string)
     if [ -z "$c_url" ]; then
       error "  Connector '$c_name' missing required field: url"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
@@ -667,7 +667,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
         GET|POST|PUT|DELETE|PATCH|OPTIONS|HEAD) ;;
         *)
           error "  Connector '$c_name' has invalid method: $c_method (must be GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD)"
-          ((connector_error_count++))
+          connector_error_count=$((connector_error_count + 1))
           continue
           ;;
       esac
@@ -683,7 +683,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     # Validate permalink format (must match ^[a-z0-9]+(-[a-z0-9]+)*$)
     if ! echo "$c_permalink" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
       error "  Connector '$c_name' has invalid permalink format: $c_permalink (must match ^[a-z0-9]+(-[a-z0-9]+)*\$)"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
@@ -691,7 +691,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
     CONNECTORS_JSON=$(echo "$CONNECTORS_JSON" | jq --argjson connector "$c" '. + [$connector]')
     success "  Processed connector: $c_name ($c_permalink)"
-    ((connector_count++))
+    connector_count=$((connector_count + 1))
   done
 
   # ---- Composite connectors (steps-based; no top-level url) ----
@@ -707,26 +707,26 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
     if [ -z "$cc_name" ]; then
       error "  Composite connector at index $j missing required field: name"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
     cc_name_length=${#cc_name}
     if [ "$cc_name_length" -gt 255 ]; then
       error "  Composite connector '$cc_name' name exceeds 255 characters"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
     cc_steps_type=$(echo "$cc" | jq -r '.steps | type')
     if [ "$cc_steps_type" != "array" ]; then
       error "  Composite connector '$cc_name' must have a steps array"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
     num_steps=$(echo "$cc" | jq '.steps | length')
     if [ "$num_steps" -eq 0 ]; then
       error "  Composite connector '$cc_name' must have at least one step"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
@@ -779,7 +779,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     done
 
     if [ "$step_bad" -eq 1 ]; then
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
@@ -793,7 +793,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     # Validate permalink format (must match ^[a-z0-9]+(-[a-z0-9]+)*$)
     if ! echo "$cc_permalink" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
       error "  Composite connector '$cc_name' has invalid permalink format: $cc_permalink (must match ^[a-z0-9]+(-[a-z0-9]+)*\$)"
-      ((connector_error_count++))
+      connector_error_count=$((connector_error_count + 1))
       continue
     fi
 
@@ -801,7 +801,7 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
     COMPOSITE_CONNECTORS_JSON=$(echo "$COMPOSITE_CONNECTORS_JSON" | jq --argjson connector "$cc" '. + [$connector]')
     success "  Processed composite connector: $cc_name ($cc_permalink)"
-    ((composite_connector_count++))
+    composite_connector_count=$((composite_connector_count + 1))
   done
 done
 
@@ -812,7 +812,7 @@ if [ -n "$ALL_PERMALINKS" ]; then
     for dup in $dup_permalinks; do
       error "Duplicate connector permalink: $dup"
     done
-    ((connector_error_count++))
+    connector_error_count=$((connector_error_count + 1))
   fi
 fi
 
@@ -823,7 +823,7 @@ if [ -n "$ALL_COMPOSITE_PERMALINKS" ]; then
     for dup in $dup_composite_permalinks; do
       error "Duplicate composite connector permalink: $dup"
     done
-    ((connector_error_count++))
+    connector_error_count=$((connector_error_count + 1))
   fi
 fi
 
