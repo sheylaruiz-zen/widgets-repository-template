@@ -1,0 +1,83 @@
+{
+  "title": "Academy Spotlight",
+  "description": "Surfaces a single Academy course in the sidebar with a thumbnail, label, title, short blurb, and a call-to-action button.",
+  "category": "Education",
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  },
+  "configuration": {
+    "properties": [
+      {
+        "name": "label",
+        "type": "text",
+        "label": "Label",
+        "defaultValue": "Zendesk Academy",
+        "rules": {
+          "required": true
+        }
+      },
+      {
+        "name": "title",
+        "type": "text",
+        "label": "Course title",
+        "defaultValue": "Getting Started with Zendesk AI Agents",
+        "rules": {
+          "required": true
+        }
+      },
+      {
+        "name": "blurb",
+        "type": "textarea",
+        "label": "Course blurb",
+        "defaultValue": "Learn how to configure, test, and launch AI agents that resolve common customer requests. Takes about 30 minutes."
+      },
+      {
+        "name": "thumbnailUrl",
+        "type": "text",
+        "label": "Thumbnail image URL",
+        "defaultValue": ""
+      },
+      {
+        "name": "thumbnailAlt",
+        "type": "text",
+        "label": "Thumbnail alt text",
+        "defaultValue": ""
+      },
+      {
+        "name": "ctaLabel",
+        "type": "text",
+        "label": "Button label",
+        "defaultValue": "Start the course",
+        "rules": {
+          "required": true
+        }
+      },
+      {
+        "name": "ctaUrl",
+        "type": "text",
+        "label": "Button link",
+        "defaultValue": "",
+        "rules": {
+          "required": true
+        }
+      },
+      {
+        "name": "openInNewTab",
+        "type": "boolean",
+        "label": "Open link in a new tab",
+        "defaultValue": true
+      }
+    ]
+  },
+  "defaultConfig": {
+    "label": "Zendesk Academy",
+    "title": "Getting Started with Zendesk AI Agents",
+    "blurb": "Learn how to configure, test, and launch AI agents that resolve common customer requests. Takes about 30 minutes.",
+    "thumbnailUrl": "",
+    "thumbnailAlt": "",
+    "ctaLabel": "Start the course",
+    "ctaUrl": "",
+    "openInNewTab": true
+  }
+}
