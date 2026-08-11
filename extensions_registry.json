@@ -283,11 +283,9 @@
         }
       ],
       "placement": "head",
-      "name": "name": "analytics",
+      "name": "analytics",
       "description": "Tracks widget impressions and interactions",
       "path": "./scripts/analytics/script.js"
     }
-      }
   ]
 }
-
