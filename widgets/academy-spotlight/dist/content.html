@@ -1,0 +1,177 @@
+<style>
+  .academy-spotlight {
+    --as-canvas: #ffffff;
+    --as-surface: #f9f8f7;
+    --as-border: #e6e5e3;
+    --as-text: #2c2c2b;
+    --as-muted: #7d7a75;
+    --as-accent: #2783de;
+    --as-accent-soft: #e5f2fc;
+    --as-accent-hover: #1f6cb8;
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 340px;
+    background: var(--as-canvas);
+    border: 1px solid var(--as-border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--as-text);
+  }
+
+  .academy-spotlight *,
+  .academy-spotlight *::before,
+  .academy-spotlight *::after {
+    box-sizing: border-box;
+  }
+
+  .academy-spotlight__media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--as-surface);
+    border-bottom: 1px solid var(--as-border);
+    overflow: hidden;
+  }
+
+  .academy-spotlight__media[hidden] {
+    display: none;
+  }
+
+  .academy-spotlight__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .academy-spotlight__body {
+    padding: 16px;
+  }
+
+  .academy-spotlight__label {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--as-accent-soft);
+    color: #14568f;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .academy-spotlight__label[hidden] {
+    display: none;
+  }
+
+  .academy-spotlight__title {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .academy-spotlight__blurb {
+    margin: 0 0 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--as-muted);
+  }
+
+  .academy-spotlight__blurb[hidden] {
+    display: none;
+  }
+
+  .academy-spotlight__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: var(--as-accent);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 120ms ease-in-out;
+  }
+
+  .academy-spotlight__cta:hover,
+  .academy-spotlight__cta:focus-visible {
+    background: var(--as-accent-hover);
+    color: #ffffff;
+  }
+
+  .academy-spotlight__cta:focus-visible {
+    outline: 2px solid var(--as-accent);
+    outline-offset: 2px;
+  }
+
+  .academy-spotlight__cta[hidden] {
+    display: none;
+  }
+
+  .academy-spotlight__arrow {
+    flex: 0 0 auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .academy-spotlight__cta {
+      transition: none;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .academy-spotlight {
+      --as-canvas: #202020;
+      --as-surface: #383836;
+      --as-border: rgba(255, 255, 255, 0.2);
+      --as-text: #ffffff;
+      --as-muted: rgba(255, 255, 255, 0.65);
+      --as-accent: #5e9fe8;
+      --as-accent-soft: rgba(94, 159, 232, 0.12);
+      --as-accent-hover: #7cb2ee;
+    }
+
+    .academy-spotlight__label {
+      color: #a9cdf5;
+    }
+
+    .academy-spotlight__cta {
+      color: #14202c;
+    }
+
+    .academy-spotlight__cta:hover,
+    .academy-spotlight__cta:focus-visible {
+      color: #14202c;
+    }
+  }
+</style>
+
+<section class="academy-spotlight" aria-labelledby="academy-spotlight-title">
+  <div class="academy-spotlight__media" data-as="media" hidden>
+    <img class="academy-spotlight__image" data-as="image" src="" alt="" />
+  </div>
+  <div class="academy-spotlight__body">
+    <p class="academy-spotlight__label" data-as="label" hidden></p>
+    <h3 class="academy-spotlight__title" id="academy-spotlight-title" data-as="title"></h3>
+    <p class="academy-spotlight__blurb" data-as="blurb" hidden></p>
+    <a class="academy-spotlight__cta" data-as="cta" href="#" hidden>
+      <span data-as="cta-label"></span>
+      <svg class="academy-spotlight__arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" focusable="false">
+        <path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </div>
+</section>
+
+<script type="module" src="./widget.js"></script>
