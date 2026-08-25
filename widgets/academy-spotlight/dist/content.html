@@ -1,14 +1,14 @@
 <style>
   .academy-spotlight {
-    --as-canvas: #f7f6f5;
-    --as-border: #e6e5e3;
-    --as-accent: #0f3733;
-    --as-badge-bg: #0f3733;
-    --as-badge-text: #ffffff;
-    --as-text: #2c2c2b;
-    --as-muted: #5c5a56;
-    --as-cta: #0f3733;
-    --as-cta-hover: #1c524c;
+    --as-canvas: var(--config--main-color-background, #f7f6f5);
+    --as-border: var(--config--main-color-border, #e6e5e3);
+    --as-accent: var(--config--main-color-brand, #0f3733);
+    --as-badge-bg: var(--config--main-color-brand, #0f3733);
+    --as-badge-text: var(--config--main-color-background, #ffffff);
+    --as-text: var(--config--main-color-text, #2c2c2b);
+    --as-muted: var(--config--main-color-text-secondary, #5c5a56);
+    --as-cta: var(--config--main-color-brand, #0f3733);
+    --as-cta-hover: var(--config--main-color-brand-hover, #1c524c);
 
     box-sizing: border-box;
     width: 100%;
@@ -18,7 +18,7 @@
     border-left: 4px solid var(--as-accent);
     border-radius: 10px;
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--config--main-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
     color: var(--as-text);
   }
 
@@ -135,15 +135,15 @@
 
   @media (prefers-color-scheme: dark) {
     .academy-spotlight {
-      --as-canvas: #202020;
-      --as-border: rgba(255, 255, 255, 0.16);
-      --as-accent: #4fd1c5;
-      --as-badge-bg: #4fd1c5;
-      --as-badge-text: #0f3733;
-      --as-text: #ffffff;
-      --as-muted: rgba(255, 255, 255, 0.65);
-      --as-cta: #4fd1c5;
-      --as-cta-hover: #7fe0d6;
+      --as-canvas: var(--config--main-color-background, #202020);
+      --as-border: var(--config--main-color-border, rgba(255, 255, 255, 0.16));
+      --as-accent: var(--config--main-color-brand, #4fd1c5);
+      --as-badge-bg: var(--config--main-color-brand, #4fd1c5);
+      --as-badge-text: var(--config--main-color-background, #0f3733);
+      --as-text: var(--config--main-color-text, #ffffff);
+      --as-muted: var(--config--main-color-text-secondary, rgba(255, 255, 255, 0.65));
+      --as-cta: var(--config--main-color-brand, #4fd1c5);
+      --as-cta-hover: var(--config--main-color-brand-hover, #7fe0d6);
     }
   }
 </style>
