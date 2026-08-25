@@ -10,16 +10,26 @@
     --as-cta: var(--config--main-color-brand, #0f3733);
     --as-cta-hover: var(--config--main-color-brand-hover, #1c524c);
 
+    position: relative;
     box-sizing: border-box;
     width: 100%;
     max-width: 340px;
     background: var(--as-canvas);
     border: 1px solid var(--as-border);
-    border-left: 4px solid var(--as-accent);
     border-radius: 10px;
     overflow: hidden;
     font-family: var(--config--main-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif);
     color: var(--as-text);
+  }
+
+  .academy-spotlight::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--as-accent);
   }
 
   .academy-spotlight *,
