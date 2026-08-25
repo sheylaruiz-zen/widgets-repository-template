@@ -3,7 +3,7 @@
     {
       "title": "Academy Spotlight",
       "description": "Surfaces a single Academy course in the sidebar with a thumbnail, label, title, short blurb, and a call-to-action button.",
-      "category": "Sidebar",
+      "category": "Education",
       "containers": ["Sidebar"],
       "source": {
         "path": "widgets/academy-spotlight/dist",
