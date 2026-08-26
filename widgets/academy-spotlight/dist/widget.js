@@ -9,6 +9,10 @@ const EXPLICIT_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 // Scheme-less but domain-like, e.g. academy.zendesk.com/path or www.example.com
 const DOMAIN_LIKE = /^[\w-]+(\.[\w-]+)+([/?#]|$)/;
 
+// Keep in step with rules.minimum / rules.maximum for "inset" in widget.json.
+const MIN_INSET = 0;
+const MAX_INSET = 64;
+
 function safeUrl(value) {
   const raw = typeof value === "string" ? value.trim() : "";
   if (raw === "") return "";
@@ -46,8 +50,34 @@ function text(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+// Returns a clamped pixel value, or null when nothing usable was configured.
+// Returning null matters: it leaves the stylesheet default in place rather
+// than forcing a value onto instances saved before this setting existed.
+function insetPx(value) {
+  if (value === null || value === undefined || value === "") return null;
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    console.warn(
+      "[academy-spotlight] Ignoring unusable Side spacing value: " +
+        String(value)
+    );
+    return null;
+  }
+
+  return Math.min(Math.max(Math.round(parsed), MIN_INSET), MAX_INSET);
+}
+
 function render(root, props) {
   const el = (name) => root.querySelector('[data-as="' + name + '"]');
+
+  // Side spacing lives on the host so the card and any future sibling elements
+  // share one value.
+  const host = root.host;
+  const inset = insetPx(props.inset);
+  if (host && inset !== null) {
+    host.style.setProperty("--as-inset", inset + "px");
+  }
 
   const media = el("media");
   const image = el("image");
