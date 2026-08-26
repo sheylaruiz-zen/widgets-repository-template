@@ -12,10 +12,12 @@
     --as-cta-hover: var(--config--main-color-brand-hover, #1c524c);
     --as-shadow: rgba(0, 0, 0, 0.16) 0 2px 4px;
     --as-shadow-hover: rgba(0, 0, 0, 0.3) 0 2px 4px;
+    --as-inset: 50px;
 
     position: relative;
     box-sizing: border-box;
-    width: 100%;
+    width: auto;
+    margin: 0 var(--as-inset);
     background: linear-gradient(135deg, var(--as-canvas) 0%, var(--as-canvas-end) 100%);
     border: 1px solid var(--as-border);
     border-radius: 6px;
@@ -145,6 +147,12 @@
   .academy-spotlight__cta:hover .academy-spotlight__arrow,
   .academy-spotlight__cta:focus-visible .academy-spotlight__arrow {
     transform: translateX(2px);
+  }
+
+  @media (max-width: 480px) {
+    .academy-spotlight {
+      --as-inset: 16px;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
