@@ -21,17 +21,23 @@ function safeUrl(value) {
   // rewritten into something loadable.
   if (EXPLICIT_SCHEME.test(raw)) {
     console.warn(
-      `[academy-spotlight] Ignoring unsupported link scheme: "${raw}". Use an https:// URL.`
+      "[academy-spotlight] Ignoring unsupported link scheme: " +
+        raw +
+        ". Use an https:// URL."
     );
     return "";
   }
 
   // Assume https for scheme-less domains so a pasted "academy.zendesk.com/..."
   // still works instead of silently hiding the CTA.
-  if (DOMAIN_LIKE.test(raw)) return `https://${raw}`;
+  if (DOMAIN_LIKE.test(raw)) {
+    return "https://" + raw;
+  }
 
   console.warn(
-    `[academy-spotlight] Could not interpret "${raw}" as a link. Use a full https:// URL.`
+    "[academy-spotlight] Could not interpret " +
+      raw +
+      " as a link. Use a full https:// URL."
   );
   return "";
 }
@@ -41,7 +47,7 @@ function text(value) {
 }
 
 function render(root, props) {
-  const el = (name) => root.querySelector(`[data-as="${name}"]`);
+  const el = (name) => root.querySelector('[data-as="' + name + '"]');
 
   const media = el("media");
   const image = el("image");
@@ -94,7 +100,8 @@ function render(root, props) {
       );
     } else if (!ctaUrl) {
       console.warn(
-        "[academy-spotlight] CTA hidden: Button link is missing or unusable."
+        "[academy-spotlight] CTA hidden: Button link is missing or unusable. Raw value: " +
+          String(props.ctaUrl)
       );
     } else {
       console.warn("[academy-spotlight] CTA hidden: Button label is empty.");
