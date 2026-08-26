@@ -97,9 +97,7 @@ function render(root, props) {
         "[academy-spotlight] CTA hidden: Button link is missing or unusable."
       );
     } else {
-      console.warn(
-        "[academy-spotlight] CTA hidden: Button label is empty."
-      );
+      console.warn("[academy-spotlight] CTA hidden: Button label is empty.");
     }
     cta.hidden = true;
   }
