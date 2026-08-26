@@ -68,6 +68,17 @@
         "type": "boolean",
         "label": "Open link in a new tab",
         "defaultValue": true
+      },
+      {
+        "name": "inset",
+        "type": "number",
+        "label": "Side spacing",
+        "description": "Space in pixels between the card and the container edges. Use 25 in the main sidebar to line up with the announcement card. Use 0 on the Groups page so the card sits flush with the About and Moderation widgets.",
+        "defaultValue": 25,
+        "rules": {
+          "minimum": 0,
+          "maximum": 64
+        }
       }
     ]
   },
@@ -79,6 +90,7 @@
     "thumbnailAlt": "",
     "ctaLabel": "Start the course",
     "ctaUrl": "",
-    "openInNewTab": true
+    "openInNewTab": true,
+    "inset": 25
   }
 }
